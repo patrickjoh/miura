@@ -1,20 +1,21 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
 import pandas as pd
 from sklearn.preprocessing import RobustScaler
 
-# Setting random seed for reproducibility
-torch.manual_seed(140)
-np.random.seed(140)
-random.seed(140)
 
 class LSTM(nn.Module):
-    def __init__(self, x_values, y_values, input_size, hidden_size, num_layers, output_size, batch_size=3, num_epochs=50, learning_rate=0.05):
+    def __init__(self, x_values, y_values, input_size=1, hidden_size=10, num_layers=1, output_size=1, batch_size=3, num_epochs=50, learning_rate=0.05):
         super(LSTM, self).__init__()
+
+        # Setting random seed for reproducibility
+        torch.manual_seed(140)
+        np.random.seed(140)
+        random.seed(140)
         
         # Initialize scalers
         self.sc_x = RobustScaler()
@@ -58,22 +59,11 @@ class LSTM(nn.Module):
         return x_scaled
 
     def create_dataloader(self, x_scaled, y_scaled, batch_size):
-        class CustomDataset(Dataset):
-            def __init__(self, x_data, y_data):
-                self.x_data = x_data
-                self.y_data = y_data
-            
-            def __len__(self):
-                return len(self.x_data)
-            
-            def __getitem__(self, idx):
-                return self.x_data[idx], self.y_data[idx]
-        
-        dataset = CustomDataset(x_scaled, y_scaled)
+        dataset = TensorDataset(x_scaled, y_scaled)
         return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
     def forward(self, x):
-        x, _ = self.lstm(x)
+        x, _ = self.lstm(x)  # LSTM output
         x = self.fc(x[:, -1, :])  # Extract only the last timestep's output for prediction
         return x
 
