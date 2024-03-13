@@ -1,7 +1,6 @@
 import time
 import csv
 from kafka import KafkaProducer
-import json
 from datetime import datetime
 
 # List of known anomalous timestamps
@@ -16,23 +15,28 @@ def convert_to_line_protocol(timestamp, value):
     dt = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
     timestamp_ns = int(dt.timestamp() * 1e9)  # Convert to nanoseconds
     
-    # Check if the timestamp is in the list of known anomalous timestamps
-    is_anomaly = "true" if timestamp in anomalous_timestamps else "false"
+    # Format the data as InfluxDB Line Protocol
+    line = f"cpu_utilization value={value} {timestamp_ns}"
+    lines = [line]
     
-    # Format the data as InfluxDB Line Protocol including the is_anomaly tag
-    line = f"cpu_utilization,is_anomaly={is_anomaly} value={value} {timestamp_ns}"
-    return line
+    # If the timestamp is an anomaly, create a duplicate entry in a different measurement
+    if timestamp in anomalous_timestamps:
+        anomaly_line = f"anomaly_cpu_utilization value={value} {timestamp_ns}"
+        lines.append(anomaly_line)
+    
+    return lines
 
 def send_csv_data(producer, topic, file_path):
     with open(file_path, 'r') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            line_protocol = convert_to_line_protocol(row['timestamp'], row['value'])
-            # Send the Line Protocol formatted data to Kafka
-            producer.send(topic, value=line_protocol.encode('utf-8'))
-            producer.flush()
-            print(f"Sent data: {line_protocol}")
-            time.sleep(0)  # Simulate delay
+            line_protocols = convert_to_line_protocol(row['timestamp'], row['value'])
+            for line_protocol in line_protocols:
+                # Send the Line Protocol formatted data to Kafka
+                producer.send(topic, value=line_protocol.encode('utf-8'))
+                producer.flush()
+                print(f"Sent data: {line_protocol}")
+            time.sleep(10)  # Simulate delay
 
 if __name__ == "__main__":
     bootstrap_servers = "localhost:9093" # Kafka broker address
