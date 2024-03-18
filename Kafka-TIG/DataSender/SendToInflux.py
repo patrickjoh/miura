@@ -1,7 +1,7 @@
 import time
 import csv
 from kafka import KafkaProducer
-from datetime import datetime
+from datetime import datetime, timezone
 
 # List of known anomalous timestamps
 anomalous_timestamps = [
@@ -12,7 +12,7 @@ anomalous_timestamps = [
 def convert_to_line_protocol(timestamp, value):
     # Convert timestamp to nanoseconds since epoch
     # Assuming your timestamps are in UTC and in the format "YYYY-MM-DD HH:MM:SS"
-    dt = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+    dt = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
     timestamp_ns = int(dt.timestamp() * 1e9)  # Convert to nanoseconds
     
     # Format the data as InfluxDB Line Protocol
@@ -36,7 +36,7 @@ def send_csv_data(producer, topic, file_path):
                 producer.send(topic, value=line_protocol.encode('utf-8'))
                 producer.flush()
                 print(f"Sent data: {line_protocol}")
-            time.sleep(10)  # Simulate delay
+            time.sleep(0)  # Simulate delay
 
 if __name__ == "__main__":
     bootstrap_servers = "localhost:9093" # Kafka broker address
