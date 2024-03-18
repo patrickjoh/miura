@@ -72,6 +72,14 @@ class LSTM(nn.Module):
         y_pred_np = y_pred.detach().numpy()  # Convert to numpy array
         y_pred_orig = self.sc_y.inverse_transform(y_pred_np)
         return torch.tensor(y_pred_orig)
+    
+    def predict_next(self):
+         # Get a prediction
+        x = torch.tensor([4], dtype=torch.float32).view(-1, 1, 1)
+        x = self.transform(x)
+        y_pred = self(x)
+        y_pred = self.inverse_transform_y(y_pred)
+        return y_pred
 
     def train_model(self):
         optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -86,5 +94,5 @@ class LSTM(nn.Module):
                 loss.backward()  # Backward pass
                 optimizer.step()  # Update the weights
 
-            if epoch % 5 == 0:  # Print the loss every 5 epochs
-                print(f'Epoch [{epoch}/{self.num_epochs}], Loss: {loss.item()}')
+        #    if epoch % 5 == 0:  # Print the loss every 5 epochs
+        #        print(f'Epoch [{epoch}/{self.num_epochs}], Loss: {loss.item()}')
