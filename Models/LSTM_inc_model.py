@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
 import pandas as pd
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import  MinMaxScaler as Scaler
 
 
 class LSTM_inc(nn.Module):
@@ -18,8 +18,8 @@ class LSTM_inc(nn.Module):
         random.seed(140)
         
         # Initialize scalers
-        self.sc_x = RobustScaler()
-        self.sc_y = RobustScaler()
+        self.sc_x = Scaler()
+        self.sc_y = Scaler()
         
         # LSTM Model Configuration
         self.input_size = input_size

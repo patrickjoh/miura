@@ -5,11 +5,11 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
 import pandas as pd
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import MinMaxScaler as Scaler
 
 
 class LSTM(nn.Module):
-    def __init__(self, x_values, y_values, input_size=1, hidden_size=10, num_layers=1, output_size=1, batch_size=3, num_epochs=50, learning_rate=0.05):
+    def __init__(self, x_values, y_values, input_size=1, hidden_size=10, num_layers=1, output_size=1, batch_size=3, num_epochs=50, learning_rate=0.005):
         super(LSTM, self).__init__()
 
         # Setting random seed for reproducibility
@@ -18,8 +18,8 @@ class LSTM(nn.Module):
         random.seed(140)
         
         # Initialize scalers
-        self.sc_x = RobustScaler()
-        self.sc_y = RobustScaler()
+        self.sc_x = Scaler()
+        self.sc_y = Scaler()
         
         # Preprocess the data
         self.x_scaled, self.y_scaled = self.fit_transform(x_values, y_values)
@@ -72,14 +72,6 @@ class LSTM(nn.Module):
         y_pred_np = y_pred.detach().numpy()  # Convert to numpy array
         y_pred_orig = self.sc_y.inverse_transform(y_pred_np)
         return torch.tensor(y_pred_orig)
-    
-    def predict_next(self):
-         # Get a prediction
-        x = torch.tensor([4], dtype=torch.float32).view(-1, 1, 1)
-        x = self.transform(x)
-        y_pred = self(x)
-        y_pred = self.inverse_transform_y(y_pred)
-        return y_pred
 
     def train_model(self):
         optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -96,3 +88,11 @@ class LSTM(nn.Module):
 
         #    if epoch % 5 == 0:  # Print the loss every 5 epochs
         #        print(f'Epoch [{epoch}/{self.num_epochs}], Loss: {loss.item()}')
+                
+    def predict_next(self):
+         # Get a prediction
+        x = torch.tensor([4], dtype=torch.float32).view(-1, 1, 1)
+        x = self.transform(x)
+        y_pred = self(x)
+        y_pred = self.inverse_transform_y(y_pred)
+        return y_pred
