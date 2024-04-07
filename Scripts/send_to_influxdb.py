@@ -3,11 +3,23 @@ import csv
 from kafka import KafkaProducer
 from datetime import datetime, timezone
 
-# List of known anomalous timestamps
-anomalous_timestamps = [
-    "2014-04-15 15:44:00",
-    "2014-04-16 03:34:00"
-]
+
+#List of known anomalous timestamps for CC2
+#anomalous_timestamps_CC2 = [
+#    "2014-04-15 15:44:00",
+#    "2014-04-16 03:34:00"
+#]
+
+
+# List of known anomalous timestamps for B3B
+#anomalous_timestamps_B3B = [
+#    "2014-04-13 06:52:00",
+#    "2014-04-18 23:27:00"
+#]
+
+dataset = "duplicated_cc2"
+anomaly_name = "duplicated_anomalous_cc2"
+
 
 def convert_to_line_protocol(timestamp, value):
     # Convert timestamp to nanoseconds since epoch
@@ -16,12 +28,12 @@ def convert_to_line_protocol(timestamp, value):
     timestamp_ns = int(dt.timestamp() * 1e9)  # Convert to nanoseconds
     
     # Format the data as InfluxDB Line Protocol
-    line = f"cpu_utilization value={value} {timestamp_ns}"
+    line = f"{dataset} value={value} {timestamp_ns}"
     lines = [line]
     
     # If the timestamp is an anomaly, create a duplicate entry in a different measurement
-    if timestamp in anomalous_timestamps:
-        anomaly_line = f"anomaly_cpu_utilization value={value} {timestamp_ns}"
+    if timestamp in {anomaly_name}:
+        anomaly_line = f"{anomaly_name} value={value} {timestamp_ns}"
         lines.append(anomaly_line)
     
     return lines
@@ -41,7 +53,8 @@ def send_csv_data(producer, topic, file_path):
 if __name__ == "__main__":
     bootstrap_servers = "localhost:9093" # Kafka broker address
     topic = "cpu_util" # Topic to send CPU utilization data
-    file_path = "ec2_cpu_utilization_825cc2.csv" # Path to CSV file
+    file_path = "./datasets/enlarged_ec2_cpu_utilization_825cc2.csv" # Path to CSV file
+    #file_path = "./datasets/enlarged_rds_cpu_utilization_e47b3b.csv"
 
     # Create Kafka producer
     producer = KafkaProducer(
