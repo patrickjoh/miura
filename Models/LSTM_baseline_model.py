@@ -4,7 +4,6 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
-import pandas as pd
 from sklearn.preprocessing import MinMaxScaler as Scaler
 
 
