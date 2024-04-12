@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
 import pandas as pd
-from sklearn.preprocessing import  MinMaxScaler as Scaler
+from sklearn.preprocessing import MinMaxScaler as Scaler
 
 
 class LSTM_inc(nn.Module):
@@ -127,4 +127,4 @@ class LSTM_inc(nn.Module):
         x = self.transform_x(x)
         y_pred = self(x)
         y_pred = self.inverse_transform_y(y_pred)
-        return y_pred
+        return y_pred.item()
