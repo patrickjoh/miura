@@ -12,13 +12,14 @@ from datetime import datetime, timezone
 
 
 # List of known anomalous timestamps for B3B
-#anomalous_timestamps_B3B = [
-#    "2014-04-13 06:52:00",
-#    "2014-04-18 23:27:00"
-#]
+anomalous_timestamps_B3B = [
+    "2014-04-13 06:52:00",
+    "2014-04-18 23:27:00"
+]
 
-dataset = "duplicated_cc2"
-anomaly_name = "duplicated_anomalous_cc2"
+dataset = "b3b"
+anomaly_name = "labels_b3b"
+anomalous_timestamps = anomalous_timestamps_B3B
 
 
 def convert_to_line_protocol(timestamp, value):
@@ -32,7 +33,7 @@ def convert_to_line_protocol(timestamp, value):
     lines = [line]
     
     # If the timestamp is an anomaly, create a duplicate entry in a different measurement
-    if timestamp in {anomaly_name}:
+    if timestamp in anomalous_timestamps:
         anomaly_line = f"{anomaly_name} value={value} {timestamp_ns}"
         lines.append(anomaly_line)
     
@@ -53,8 +54,8 @@ def send_csv_data(producer, topic, file_path):
 if __name__ == "__main__":
     bootstrap_servers = "localhost:9093" # Kafka broker address
     topic = "cpu_util" # Topic to send CPU utilization data
-    file_path = "./datasets/enlarged_ec2_cpu_utilization_825cc2.csv" # Path to CSV file
-    #file_path = "./datasets/enlarged_rds_cpu_utilization_e47b3b.csv"
+    #file_path = "../Datasets/ec2_cpu_utilization_825cc2.csv" # Path to CSV file
+    file_path = "../Datasets/rds_cpu_utilization_e47b3b.csv"
 
     # Create Kafka producer
     producer = KafkaProducer(
