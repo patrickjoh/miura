@@ -162,3 +162,9 @@ cython_debug/
 
 # General
 IGNORE
+## SonarQube
+.scannerwork 
+## Visual Studio Code
+.vscode
+## MacOS
+.DS_Store
