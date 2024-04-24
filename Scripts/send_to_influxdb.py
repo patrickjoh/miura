@@ -4,22 +4,33 @@ from kafka import KafkaProducer
 from datetime import datetime, timezone
 
 
-#List of known anomalous timestamps for CC2
-#anomalous_timestamps_CC2 = [
-#    "2014-04-15 15:44:00",
-#    "2014-04-16 03:34:00"
-#]
+#List of labeled anomalies for ec2_cpu_utilization_825cc2.csv
+labels_CC2 = [
+    "2014-04-15 15:44:00",
+    "2014-04-16 03:34:00"
+]
 
-
-# List of known anomalous timestamps for B3B
-anomalous_timestamps_B3B = [
+# List of labeled anomalies for rds_cpu_utilization_e47b3b.csv
+labels_B3B = [
     "2014-04-13 06:52:00",
     "2014-04-18 23:27:00"
 ]
 
-dataset = "b3b"
-anomaly_name = "labels_b3b"
-anomalous_timestamps = anomalous_timestamps_B3B
+# List of labeled anomalies for rds_cpu_utilization_cc0c53.csv
+labels_C53 = [
+    "2014-02-25 07:15:00",
+    "2014-02-27 00:50:00"
+]
+
+# List of labeled anomalies for ec2_network_in_257a54.csv
+labels_A54 = [
+    "2014-04-15 16:44:00"
+]
+
+# Choose the dataset and labels to use
+dataset = "A54"             # Name of the measurement in InfluxDB
+anomaly_name = "labels_A54" # Name of the measurement for anomalies in InfluxDB
+labels = labels_A54         # Which labels to use
 
 
 def convert_to_line_protocol(timestamp, value):
@@ -33,7 +44,7 @@ def convert_to_line_protocol(timestamp, value):
     lines = [line]
     
     # If the timestamp is an anomaly, create a duplicate entry in a different measurement
-    if timestamp in anomalous_timestamps:
+    if timestamp in labels:
         anomaly_line = f"{anomaly_name} value={value} {timestamp_ns}"
         lines.append(anomaly_line)
     
@@ -54,8 +65,11 @@ def send_csv_data(producer, topic, file_path):
 if __name__ == "__main__":
     bootstrap_servers = "localhost:9093" # Kafka broker address
     topic = "cpu_util" # Topic to send CPU utilization data
-    #file_path = "../Datasets/ec2_cpu_utilization_825cc2.csv" # Path to CSV file
-    file_path = "../Datasets/rds_cpu_utilization_e47b3b.csv"
+    #file_path = "../Datasets/ec2_cpu_utilization_825cc2.csv"  # CC2
+    #file_path = "../Datasets/rds_cpu_utilization_e47b3b.csv"  # B3B
+    #file_path = "../Datasets/rds_cpu_utilization_cc0c53.csv"  # C53
+    file_path = "../Datasets/ec2_network_in_257a54.csv"       # A54
+
 
     # Create Kafka producer
     producer = KafkaProducer(
