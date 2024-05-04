@@ -1,15 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
-import pandas as pd
 from sklearn.preprocessing import MinMaxScaler as Scaler
 
 
 class LSTM_inc(nn.Module):
-    def __init__(self, input_size=1, hidden_size=10, num_layers=1, output_size=1, batch_size=3, num_epochs=50, learning_rate=0.005):
+    def __init__(self, input_size=1, hidden_size=10, num_layers=1, output_size=1, num_epochs=50, learning_rate=0.005):
         super(LSTM_inc, self).__init__()
 
         # Setting random seed for reproducibility
@@ -28,7 +26,6 @@ class LSTM_inc(nn.Module):
         self.output_size = output_size
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
-        self.batch_size = batch_size
         
         # Define LSTM and FC layers
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
@@ -42,8 +39,8 @@ class LSTM_inc(nn.Module):
         x_scaled = self.sc_x.fit_transform(x_values_2D)
         y_scaled = self.sc_y.fit_transform(y_values_2D)
         
-        x_scaled = torch.tensor(x_scaled).unsqueeze(-1)
-        y_scaled = torch.tensor(y_scaled).unsqueeze(-1)
+        x_scaled = torch.tensor(x_scaled, dtype=torch.float32).unsqueeze(-1)
+        y_scaled = torch.tensor(y_scaled, dtype=torch.float32).unsqueeze(-1)
         
         return x_scaled, y_scaled
     
@@ -54,20 +51,16 @@ class LSTM_inc(nn.Module):
         x_scaled = self.sc_x.transform(x_values_2D)
         y_scaled = self.sc_y.transform(y_values_2D)
         
-        x_scaled = torch.tensor(x_scaled).unsqueeze(-1)
-        y_scaled = torch.tensor(y_scaled).unsqueeze(-1)
+        x_scaled = torch.tensor(x_scaled, dtype=torch.float32).unsqueeze(-1)
+        y_scaled = torch.tensor(y_scaled, dtype=torch.float32).unsqueeze(-1)
         
         return x_scaled, y_scaled
     
     def transform_x(self, x_values):
         x_values_2D = x_values.squeeze(-1).numpy()
         x_scaled = self.sc_x.transform(x_values_2D)
-        x_scaled = torch.tensor(x_scaled).unsqueeze(-1)
+        x_scaled = torch.tensor(x_scaled, dtype=torch.float32).unsqueeze(-1)
         return x_scaled
-
-    def create_dataloader(self, x_scaled, y_scaled):
-        dataset = TensorDataset(x_scaled, y_scaled)
-        return DataLoader(dataset=dataset, batch_size=self.batch_size, shuffle=False)
 
     def forward(self, x):
         x, _ = self.lstm(x)  # LSTM output
@@ -78,20 +71,19 @@ class LSTM_inc(nn.Module):
         # Convert predictions back to original scale
         y_pred_np = y_pred.detach().numpy()  # Convert to numpy array
         y_pred_orig = self.sc_y.inverse_transform(y_pred_np)
-        return torch.tensor(y_pred_orig)
+        return torch.tensor(y_pred_orig, dtype=torch.float32)
 
-    def train_model(self, train_loader):
+    def train_model(self, x, y):
         optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         loss_fn = nn.MSELoss()  # Mean Squared Error Loss
 
         for epoch in range(self.num_epochs):
             self.train()  # Set the model to training mode
-            for x, y in train_loader:
-                output = self(x)  # Forward pass
-                optimizer.zero_grad()  # Clear the gradients
-                loss = loss_fn(output, y.view(-1, 1))  # Compute the loss
-                loss.backward()  # Backward pass
-                optimizer.step()  # Update the weights
+            output = self(x)  # Forward pass
+            optimizer.zero_grad()  # Clear the gradients
+            loss = loss_fn(output, y.view(-1, 1))  # Compute the loss
+            loss.backward()  # Backward pass
+            optimizer.step()  # Update the weights
 
         #    if epoch % 5 == 0:  # Print the loss every 5 epochs
         #        print(f'Epoch [{epoch}/{self.num_epochs}], Loss: {loss.item()}')
@@ -102,10 +94,8 @@ class LSTM_inc(nn.Module):
     def initialize(self, x_values, y_values):
         # Initialize scalers
         x_scaled, y_scaled = self.fit_transform(x_values, y_values)
-        # Create DataLoader
-        train_loader = self.create_dataloader(x_scaled, y_scaled)
         # Train the model
-        self.train_model(train_loader)
+        self.train_model(x_scaled, y_scaled)
 
         # Return the trained model
         return self
@@ -113,10 +103,8 @@ class LSTM_inc(nn.Module):
     def continue_training(self, x_values, y_values):
         # Scale the data
         x_scaled, y_scaled = self.transform(x_values, y_values)
-        # Create DataLoader
-        train_loader = self.create_dataloader(x_scaled, y_scaled)
         # Train the model
-        self.train_model(train_loader) 
+        self.train_model(x_scaled, y_scaled)
 
         # Return the trained model
         return self
