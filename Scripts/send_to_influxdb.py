@@ -7,20 +7,32 @@ def read_from_file(filename):
     with open(filename, 'r') as file:
         return [line.strip() for line in file]
 
-#List of labeled anomalies for ec2_cpu_utilization_825cc2.csv
-labels_CC2     = read_from_file("../Datasets/Labels/labels_CC2.txt")
-labels_CC2_seq = read_from_file("../Datasets/Labels/labels_CC2-seq.txt")
+# To send dataset to InfluxDB without anomalies
+labels_EMPTY   = []
+
+# List of labeled anomalies for ec2_network_in_257a54.csv
+labels_A54     = read_from_file("../Datasets/Labels/labels_A54.txt")
 # List of labeled anomalies for rds_cpu_utilization_e47b3b.csv
 labels_B3B     = read_from_file("../Datasets/Labels/labels_B3B.txt")
 # List of labeled anomalies for rds_cpu_utilization_cc0c53.csv
 labels_C53     = read_from_file("../Datasets/Labels/labels_C53.txt")
-# List of labeled anomalies for ec2_network_in_257a54.csv
-labels_A54     = read_from_file("../Datasets/Labels/labels_A54.txt")
+# List of labeled anomalies for ec2_cpu_utilization_825cc2.csv
+labels_CC2     = read_from_file("../Datasets/Labels/labels_CC2.txt")
+labels_CC2_seq = read_from_file("../Datasets/Labels/labels_CC2_seq.txt")
+# List of labeled anomalies for C6H6_GT.csv
+labels_C6H6_seq = read_from_file("../Datasets/Labels/labels_C6H6_seq.txt")
+# List of labeled anomalies for PT08_S1_CO.csv
+labels_PT08_S1_seq = read_from_file("../Datasets/Labels/labels_PT08_S1_seq.txt")
+# List of labeled anomalies for PT08_S2_CO.csv
+labels_PT08_S2_seq = read_from_file("../Datasets/Labels/labels_PT08_S2_seq.txt")
+# List of labeled anomalies for Temperature.csv
+labels_TEMP_seq = read_from_file("../Datasets/Labels/labels_TEMP_seq.txt")
+
 
 # Choose the dataset and labels to use
-dataset = "CC2"             # Name of the measurement in InfluxDB
-anomaly_name = "labels_CC2-seq" # Name of the measurement for anomalies in InfluxDB
-labels = labels_CC2_seq         # Which labels to use
+dataset = "TEMP_org"             # Name of the measurement in InfluxDB
+anomaly_name = "labels_TEMP_seq" # Name of the measurement for anomalies in InfluxDB
+labels = labels_TEMP_seq         # Which labels to use
 
 
 def convert_to_line_protocol(timestamp, value):
@@ -55,10 +67,19 @@ def send_csv_data(producer, topic, file_path):
 if __name__ == "__main__":
     bootstrap_servers = "localhost:9093" # Kafka broker address
     topic = "cpu_util" # Topic to send CPU utilization data
-    file_path = "../Datasets/ec2_cpu_utilization_825cc2.csv"  # CC2
-    #file_path = "../Datasets/rds_cpu_utilization_e47b3b.csv"  # B3B
-    #file_path = "../Datasets/rds_cpu_utilization_cc0c53.csv"  # C53
     #file_path = "../Datasets/ec2_network_in_257a54.csv"       # A54
+    #file_path = "../Datasets/rds_cpu_utilization_e47b3b.csv"  # B3B 
+    #file_path = "../Datasets/ec2_cpu_utilization_825cc2.csv"  # CC2
+    #file_path = "../Datasets/rds_cpu_utilization_cc0c53.csv"  # C53
+    #file_path = "../Datasets/C6H6_GT.csv"                     # C6H6
+    #file_path = "../Datasets/C6H6_GT_org.csv"                 # C6H6 org
+    #file_path = "../Datasets/PT08_S1_CO.csv"                  # PT08_S1
+    #file_path = "../Datasets/PT08_S1_CO_org.csv"              # PT08_S1 org
+    #file_path = "../Datasets/PT08_S2_NMHC.csv"                  # PT08_S2
+    #file_path = "../Datasets/PT08_S2_NMHC_org.csv"              # PT08_S2 org
+    #file_path = "../Datasets/Temperature.csv"                 # Temperature
+    file_path = "../Datasets/Temperature_org.csv"             # Temperature org
+
 
 
     # Create Kafka producer
