@@ -20,8 +20,9 @@ InfluxDB Bucket_name
 InfluxDB Token
 ```
 
-SendDataset.py is a Python script that sends the datapoints specified in a csv files 
-of format 'timestamp', 'value' (Check the file ec2_cpu_utilization_825cc2.csv for reference)
+'send_to_influxdb.py' is a Python script that sends the datapoints from the specified csv files. 
+of format 'timestamp', 'value' (Check the file ec2_cpu_utilization_825cc2.csv for reference) to InfluxDB.
+It is meant to only send data for a single dataset at a time.
 
 The script may need to be changed to work with other datasets.
 

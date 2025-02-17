@@ -43,11 +43,11 @@ are required for all the components.
 
 1. Bring the stack up:
 
-        sudo docker compose -f docker-compose-test2.yml --env-file conf/variables.env up --pull always
+        sudo docker compose -f docker-compose.yml --env-file conf/variables.env up --pull always
 
 2. Bring the stack down:
 
-        sudo docker compose -f docker-compose-test2.yml --env-file conf/variables.env down  
+        sudo docker compose -f docker-compose.yml --env-file conf/variables.env down  
     
 
 ## Component Availability
@@ -66,15 +66,15 @@ are required for all the components.
 ## Component Logs
 - For `kafka`, `kafdrop` , `telegraf`, `influxdb`,  stdout Logs:
 
-        docker-compose -f docker-compose-test2.yml logs -f kafka1
+        docker-compose -f docker-compose.yml logs -f kafka1
         # OR
-        docker-compose -f docker-compose-test2.yml logs -f kafdrop
+        docker-compose -f docker-compose.yml logs -f kafdrop
         # OR
-        docker-compose -f docker-compose-test2.yml logs -f telegraf
+        docker-compose -f docker-compose.yml logs -f telegraf
         # OR
-        docker-compose -f docker-compose-test2.yml logs -f influxdb
+        docker-compose -f docker-compose.yml logs -f influxdb
         # OR
-        docker-compose -f docker-compose-test2.yml logs -f grafana
+        docker-compose -f docker-compose.yml logs -f grafana
 
 
 ## Component Ports
